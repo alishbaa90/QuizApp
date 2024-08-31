@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+       * {
+           margin: 0;
+           padding: 0;
+       }
+       .container {
+           height: 100vh;
+           width: 100%;
+           background: linear-gradient(135deg, #fff9a5, #ffeb3b, #ffd700, #ffcc00, #ffb400);
+           display: flex;
+           justify-content: center;
+           align-items: center;
+       }
+       .box {
+           background-color: white;
+           height: 70vh;
+           width: 40%;
+           border-radius: 10px;
+           padding: 20px;
+           position: relative;
+           box-shadow: 0 0 10px rgba(0,0,0,0.1);
+       }
+       .box h1 {
+           color: #554217;
+           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+           font-size: 30px;
+           margin-left: 20px;
+           margin-top: 10px;
+       }
+       .underline {
+           border-bottom: 2px solid #554217;
+           display: inline-block;
+           width: 490px;
+           margin-left: 20px;   
+        }
+       .box h2 {
+           color: #554217;
+           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+           font-size: 20px;
+           margin-left: 20px;
+           margin-top: 25px;
+       }
+       .btn {
+           width: 480px;
+           height: 50px;
+           border-radius: 8px;
+           border: 1px solid rgb(87, 57, 2);
+           margin: 10px;
+           cursor: pointer;
+       }
+       .btn:hover:not([disabled]) {
+           background-color: #6b5522;
+           color: white;
+       }
+       .btn:disabled {
+           cursor: not-allowed;
+       }
+       .nextbutton button {
+           background-color: #8d6507;
+           color: white;
+           border: none;
+           height: 40px;
+           width: 100px;
+           border-radius: 20px;
+           margin-left: 220px;
+           margin-top: 10px;
+           cursor: pointer;
+           display: none; /* Hide button initially */
+       }
+       .nextbutton button:hover {
+           background-color: #5c4103;
+       }
+       .correct {
+           background: green;
+           color: white;
+       }
+       .incorrect {
+           background: red;
+           color: white;
+       }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <h1>Can you solve this Quiz?</h1>
+            <div class="underline"></div>
+            <h2 id="question"></h2>
+            <div id="answer-buttons"></div>
+            <div class="nextbutton">
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const questions = [
+            {
+                question: "Compared to their body weight, which animal is the strongest?",
+                answers: [
+                    { text: "Elephant", correct: false },
+                    { text: "Ant", correct: false },
+                    { text: "Dung Beetle", correct: true },
+                    { text: "Cow", correct: false }
+                ]
+            },
+            {
+                question: "Which is the only body part that is fully grown from birth?",
+                answers: [
+                    { text: "Eyes", correct: true },
+                    { text: "Ears", correct: false },
+                    { text: "Nose", correct: false },
+                    { text: "Lips", correct: false }
+                ]
+            },
+            {
+                question: "How many hearts does an octopus have?",
+                answers: [
+                    { text: "5", correct: false },
+                    { text: "1", correct: false },
+                    { text: "2", correct: false },
+                    { text: "3", correct: true }
+                ]
+            },
+            {
+                question: "What planet is closest to the sun?",
+                answers: [
+                    { text: "Mercury", correct: true },
+                    { text: "Jupiter", correct: false },
+                    { text: "Venus", correct: false },
+                    { text: "Mars", correct: false }
+                ]
+            },
+            {
+                question: "Where is the strongest human muscle located?",
+                answers: [
+                    { text: "Leg", correct: false },
+                    { text: "Arm", correct: false },
+                    { text: "Back", correct: false },
+                    { text: "Jaw", correct: true }
+                ]
+            },
+            {
+                question: "Pink Ladies and Granny Smiths are types of what fruit?",
+                answers: [
+                    { text: "Bananas", correct: false },
+                    { text: "Apples", correct: true },
+                    { text: "Pineapples", correct: false },
+                    { text: "Grapes", correct: false }
+                ]
+            },
+            {
+                question: "Who was the first Disney princess?",
+                answers: [
+                    { text: "Cinderella", correct: false },
+                    { text: "Aurora", correct: false },
+                    { text: "Snow White", correct: true },
+                    { text: "Belle", correct: false }
+                ]
+            },
+            {
+                question: "What is the only national flag that does not have four sides?",
+                answers: [
+                    { text: "Switzerland", correct: false },
+                    { text: "Nepal", correct: true },
+                    { text: "Vatican City", correct: false },
+                    { text: "Japan", correct: false }
+                ]
+            },
+            {
+                question: "What sports car company manufactures the 911?",
+                answers: [
+                    { text: "Porsche", correct: true },
+                    { text: "Ferrari", correct: false },
+                    { text: "Lamborghini", correct: false },
+                    { text: "Aston Martin", correct: false }
+                ]
+            },
+            {
+                question: "What is a group of pandas known as?",
+                answers: [
+                    { text: "A parade", correct: false },
+                    { text: "An embarrassment", correct: true },
+                    { text: "A pack", correct: false },
+                    { text: "A troop", correct: false }
+                ]
+            }
+        ];
+
+        const questionElement = document.getElementById("question");
+        const answerButtonsElement = document.getElementById("answer-buttons");
+        const nextButton = document.getElementById("next-btn");
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            nextButton.innerHTML = "Next"; // Set button text to "Next"
+            nextButton.style.display = "none"; // Hide button initially
+            showQuestion();
+        }
+
+        function showQuestion() {
+            resetState();
+            let currentQuestion = questions[currentQuestionIndex];
+            let questionNo = currentQuestionIndex + 1;
+            questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.innerHTML = answer.text;
+                button.classList.add("btn");
+                button.dataset.correct = answer.correct;
+                button.addEventListener("click", selectAnswer);
+                answerButtonsElement.appendChild(button);
+            });
+
+            nextButton.style.display = "none"; // Hide next button until an answer is selected
+        }
+
+        function resetState() {
+            nextButton.style.display = "none";
+            while (answerButtonsElement.firstChild) {
+                answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+            if (isCorrect) {
+                selectedBtn.classList.add("correct");
+                score++;
+            } else {
+                selectedBtn.classList.add("incorrect");
+            }
+            Array.from(answerButtonsElement.children).forEach(button => {
+                if (button.dataset.correct === "true") {
+                    button.classList.add("correct");
+                }
+                button.disabled = true;
+            });
+            nextButton.style.display = "block"; // Show next button
+        }
+
+        function showScore() {
+            resetState();
+            questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+            nextButton.innerHTML = "Play Again"; // Change button text to "Play Again"
+            nextButton.style.display = "block";
+        }
+
+        function handleNextButton() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        nextButton.addEventListener("click", () => {
+            if (currentQuestionIndex < questions.length) {
+                handleNextButton();
+            } else {
+                startQuiz(); // Restart the quiz
+            }
+        });
+
+        startQuiz(); // Start the quiz initially
+    </script>
+</body>
+</html>
